@@ -200,7 +200,104 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+
+    from util import Queue
+    queue = Queue()
+
+    from state import state
+
+    initial_state = state ()
+
+
+
+    path=[]
+    visited = set()
+    visitedSet = []
+
+    print "Start:", problem.getStartState()
+    initial_state.mystate = problem.getStartState()
+    #current_state.parent initially (-1,-1)
+    print "Is the start a goal?", problem.isGoalState(initial_state.mystate)
+
+    visited.add(initial_state.mystate)
+    visitedSet.append(initial_state)
+    queue.push(initial_state)
+
+    if(problem.isGoalState(initial_state.mystate)):
+            return 
+    else:
+            for successor_node in (problem.getSuccessors(initial_state.mystate)):
+
+                if(successor_node[0] not in visited):
+
+                    child_state = state()
+                    child_state.mystate = successor_node[0]
+                    child_state.parent = initial_state.mystate
+                    child_state.action = successor_node[1]
+                    queue.push(child_state)
+                    visited.add(successor_node[0])
+                    visitedSet.append(child_state)
+
+
+            current_state = queue.pop()
+
+            while(not( queue.isEmpty())):
+
+            
+                next_state=queue.pop()
+
+
+
+                path.extend( reachfrom(current_state,next_state , *visitedSet))
+
+                #print t
+
+                #print "Is the start a goal?", problem.isGoalState(current_state[0])
+                #print "Start's successors:", problem.getSuccessors(problem.getStartState())
+
+
+                if(problem.isGoalState(next_state.mystate)):
+                    from game import Directions
+                    s = Directions.SOUTH
+                    w = Directions.WEST
+                    n = Directions.NORTH
+                    e = Directions.EAST
+                    dir = []
+                    for p in path:
+                        print p
+                        if (p=='e'):
+                            dir.append(e)
+                        elif(p=='n'):
+                            dir.append(n)
+                        elif (p == 's'):
+                            dir.append(s)
+                        elif (p == 'w'):
+                            dir.append(w)
+
+
+                    return dir
+                else:
+                   
+                    #print current_state.mystate
+                    for successor_node in (problem.getSuccessors(next_state.mystate)):
+
+                        if(successor_node[0] not in visited):
+                            child_state = state()
+                            child_state.mystate = successor_node[0]
+                            child_state.parent = next_state.mystate
+                            child_state.action = successor_node[1]
+                            queue.push(child_state)
+                            visited.add(successor_node[0])
+                            visitedSet.append(child_state)
+
+                current_state = next_state
+
+            if(queue.isEmpty()):
+                print "no path exist"
+
+    #util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -218,6 +315,80 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
+
+def reachfrom (source , destination , *visitedSet) :
+
+    from state import state
+    a = state()
+    b = state()
+
+
+    #print "**********************************************************************************************************************************i"
+
+
+    a = source
+
+    b = destination
+    direction = chr
+
+
+    stateIn_a =[]
+    stateIn_a.append(a.mystate)
+    path_a = []
+    path_b = []
+    while (a.parent != (-1,-1)):
+        if(a.action == 'West'):
+            direction = 'e'
+        elif(a.action == 'East'):
+            direction = 'w'
+        elif(a.action == 'North'):
+            direction = 's'
+        elif(a.action == 'South'):
+            direction = 'n'
+
+        path_a.append(direction)
+        #print direction
+        stateIn_a.append(a.parent)
+
+        for x in visitedSet:
+            if (x.mystate == a.parent):
+                a = x
+                break
+
+
+
+    while((b.mystate != (-1,-1) ) and (b.mystate not in stateIn_a)):
+        if (b.action == 'West'):
+            direction = 'w'
+        elif (b.action == 'East'):
+            direction = 'e'
+        elif (b.action == 'North'):
+            direction = 'n'
+        elif (b.action == 'South'):
+            direction = 's'
+        path_b.append(direction)
+
+
+
+        for x in visitedSet:
+
+            if ( x.mystate == b.parent):
+                b = x
+                break
+
+
+
+
+    if(b.mystate==(-1,-1)):
+        return
+    else:
+        pathb = reversed(path_b)
+        index = stateIn_a.index(b.mystate)
+        i=index
+        patha = path_a[0:i]
+        patha.extend(pathb)
+        return patha
 
 
 # Abbreviations
