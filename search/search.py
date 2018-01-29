@@ -19,6 +19,8 @@ Pacman agents (in searchAgents.py).
 
 from util import Stack, Queue, PriorityQueue
 import util
+
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,7 +72,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -87,29 +90,29 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    s=Stack()
-    state=problem.getStartState()
-    path=[state]
-    dict={}
-    parent={}
-    temp=[]
-    while(not(problem.isGoalState(state))):
-        dict[state]='false'
-        z=problem.getSuccessors(state)
+    s = Stack()
+    state = problem.getStartState()
+    path = [state]
+    dict = {}
+    parent = {}
+    temp = []
+    while (not (problem.isGoalState(state))):
+        dict[state] = 'false'
+        z = problem.getSuccessors(state)
         for y in z:
-            if(not(y[0] in dict)):
+            if (not (y[0] in dict)):
                 s.push(y)
-                if(temp):
-                    parent[y]=temp
-        temp=s.pop()
-        state=temp[0]
+                if (temp):
+                    parent[y] = temp
+        temp = s.pop()
+        state = temp[0]
         print temp
 
-    path=Stack()
+    path = Stack()
     path.push(temp[1])
-    while(temp in parent):
+    while (temp in parent):
         path.push(parent[temp][1])
-        temp=parent[temp]
+        temp = parent[temp]
 
     print path.list
     path.list.reverse()
@@ -197,112 +200,103 @@ def depthFirstSearch(problem):
 
     return path.list
 
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-
 
     from util import Queue
     queue = Queue()
 
     from state import state
 
-    initial_state = state ()
+    initial_state = state()
 
-
-
-    path=[]
+    path = []
     visited = set()
     visitedSet = []
 
     print "Start:", problem.getStartState()
     initial_state.mystate = problem.getStartState()
-    #current_state.parent initially (-1,-1)
+    # current_state.parent initially (-1,-1)
     print "Is the start a goal?", problem.isGoalState(initial_state.mystate)
 
     visited.add(initial_state.mystate)
     visitedSet.append(initial_state)
     queue.push(initial_state)
 
-    if(problem.isGoalState(initial_state.mystate)):
-            return 
+    if (problem.isGoalState(initial_state.mystate)):
+        return
     else:
-            for successor_node in (problem.getSuccessors(initial_state.mystate)):
+        for successor_node in (problem.getSuccessors(initial_state.mystate)):
 
-                if(successor_node[0] not in visited):
+            if (successor_node[0] not in visited):
+                child_state = state()
+                child_state.mystate = successor_node[0]
+                child_state.parent = initial_state.mystate
+                child_state.action = successor_node[1]
+                queue.push(child_state)
+                visited.add(successor_node[0])
+                visitedSet.append(child_state)
 
-                    child_state = state()
-                    child_state.mystate = successor_node[0]
-                    child_state.parent = initial_state.mystate
-                    child_state.action = successor_node[1]
-                    queue.push(child_state)
-                    visited.add(successor_node[0])
-                    visitedSet.append(child_state)
+        current_state = queue.pop()
 
+        while (not (queue.isEmpty())):
 
-            current_state = queue.pop()
+            next_state = queue.pop()
 
-            while(not( queue.isEmpty())):
+            # print t
 
-            
-                next_state=queue.pop()
+            # print "Is the start a goal?", problem.isGoalState(current_state[0])
+            # print "Start's successors:", problem.getSuccessors(problem.getStartState())
 
+            if (problem.isGoalState(next_state.mystate)):
+                from game import Directions
+                s = Directions.SOUTH
+                w = Directions.WEST
+                n = Directions.NORTH
+                e = Directions.EAST
+                dir = []
+                path = reachfrom(initial_state , next_state , *visitedSet )
+                for p in path:
+                    print p
+                    if (p == 'e'):
+                        dir.append(e)
+                    elif (p == 'n'):
+                        dir.append(n)
+                    elif (p == 's'):
+                        dir.append(s)
+                    elif (p == 'w'):
+                        dir.append(w)
 
+                return dir
+            else:
 
-                path.extend( reachfrom(current_state,next_state , *visitedSet))
+                # print current_state.mystate
+                for successor_node in (problem.getSuccessors(next_state.mystate)):
 
-                #print t
+                    if (successor_node[0] not in visited):
+                        child_state = state()
+                        child_state.mystate = successor_node[0]
+                        child_state.parent = next_state.mystate
+                        child_state.action = successor_node[1]
+                        queue.push(child_state)
+                        visited.add(successor_node[0])
+                        visitedSet.append(child_state)
 
-                #print "Is the start a goal?", problem.isGoalState(current_state[0])
-                #print "Start's successors:", problem.getSuccessors(problem.getStartState())
+            current_state = next_state
 
+        if (queue.isEmpty()):
+            print "no path exist"
 
-                if(problem.isGoalState(next_state.mystate)):
-                    from game import Directions
-                    s = Directions.SOUTH
-                    w = Directions.WEST
-                    n = Directions.NORTH
-                    e = Directions.EAST
-                    dir = []
-                    for p in path:
-                        print p
-                        if (p=='e'):
-                            dir.append(e)
-                        elif(p=='n'):
-                            dir.append(n)
-                        elif (p == 's'):
-                            dir.append(s)
-                        elif (p == 'w'):
-                            dir.append(w)
-
-
-                    return dir
-                else:
-                   
-                    #print current_state.mystate
-                    for successor_node in (problem.getSuccessors(next_state.mystate)):
-
-                        if(successor_node[0] not in visited):
-                            child_state = state()
-                            child_state.mystate = successor_node[0]
-                            child_state.parent = next_state.mystate
-                            child_state.action = successor_node[1]
-                            queue.push(child_state)
-                            visited.add(successor_node[0])
-                            visitedSet.append(child_state)
-
-                current_state = next_state
-
-            if(queue.isEmpty()):
-                print "no path exist"
-
-    #util.raiseNotDefined()
+    # util.raiseNotDefined()
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -311,44 +305,41 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
 
-def reachfrom (source , destination , *visitedSet) :
-
+def reachfrom(source, destination, *visitedSet):
     from state import state
     a = state()
     b = state()
 
-
-    #print "**********************************************************************************************************************************i"
-
+    # print "**********************************************************************************************************************************i"
 
     a = source
 
     b = destination
     direction = chr
 
-
-    stateIn_a =[]
+    stateIn_a = []
     stateIn_a.append(a.mystate)
     path_a = []
     path_b = []
-    while (a.parent != (-1,-1)):
-        if(a.action == 'West'):
+    while (a.parent != (-1, -1)):
+        if (a.action == 'West'):
             direction = 'e'
-        elif(a.action == 'East'):
+        elif (a.action == 'East'):
             direction = 'w'
-        elif(a.action == 'North'):
+        elif (a.action == 'North'):
             direction = 's'
-        elif(a.action == 'South'):
+        elif (a.action == 'South'):
             direction = 'n'
 
         path_a.append(direction)
-        #print direction
+        # print direction
         stateIn_a.append(a.parent)
 
         for x in visitedSet:
@@ -356,9 +347,7 @@ def reachfrom (source , destination , *visitedSet) :
                 a = x
                 break
 
-
-
-    while((b.mystate != (-1,-1) ) and (b.mystate not in stateIn_a)):
+    while ((b.mystate != (-1, -1)) and (b.mystate not in stateIn_a)):
         if (b.action == 'West'):
             direction = 'w'
         elif (b.action == 'East'):
@@ -369,23 +358,18 @@ def reachfrom (source , destination , *visitedSet) :
             direction = 's'
         path_b.append(direction)
 
-
-
         for x in visitedSet:
 
-            if ( x.mystate == b.parent):
+            if (x.mystate == b.parent):
                 b = x
                 break
 
-
-
-
-    if(b.mystate==(-1,-1)):
+    if (b.mystate == (-1, -1)):
         return
     else:
         pathb = reversed(path_b)
         index = stateIn_a.index(b.mystate)
-        i=index
+        i = index
         patha = path_a[0:i]
         patha.extend(pathb)
         return patha
