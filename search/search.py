@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -17,8 +17,8 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
+from util import Stack, Queue, PriorityQueue
 import util
-
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -87,7 +87,115 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    s=Stack()
+    state=problem.getStartState()
+    path=[state]
+    dict={}
+    parent={}
+    temp=[]
+    while(not(problem.isGoalState(state))):
+        dict[state]='false'
+        z=problem.getSuccessors(state)
+        for y in z:
+            if(not(y[0] in dict)):
+                s.push(y)
+                if(temp):
+                    parent[y]=temp
+        temp=s.pop()
+        state=temp[0]
+        print temp
+
+    path=Stack()
+    path.push(temp[1])
+    while(temp in parent):
+        path.push(parent[temp][1])
+        temp=parent[temp]
+
+    print path.list
+    path.list.reverse()
+    """
+    print "Start:", problem.getStartState()
+    s = Stack()
+    state=problem.getStartState()
+    z=problem.getSuccessors(state)
+
+    dict={}
+    temp=state
+    p=1
+    dict[temp]='false'
+    for c in range(len(z)):
+     if(not(dict.has_key(z[c][0]))):
+      s.push(z[c])
+      dict[z[c][0]]='false'
+      p=0
+
+    print p
+    ty=[]
+    lastbranching=Stack()
+    lastbranching.push(temp)
+    while(not(problem.isGoalState(state))):
+     temp=s.pop()
+     state=temp[0]
+     if(p==0):
+        ty.append(temp)
+        print 'append',temp
+     else:
+         zr=lastbranching.pop()
+         tr=[]
+         while(not(tr==zr)):
+          tr=ty.pop()
+          print 'pop',tr
+     p=1
+     z=problem.getSuccessors(state)
+     print 'range',range(len(z))
+     while(c<=len(z)):
+      if(not(z[c][0] in dict)):
+         print 'Before delete',z
+         del z[c-1]
+         print 'after delete',z
+         print 'len',len(z)
+         c=0
+         if(len(z)==0):
+          break
+     c=c+1
+     if(len(z)>1):
+         lastbranching.push(temp)
+         print len(z)
+         print 'lastbranching',lastbranching
+
+     for c in range(len(z)):
+       s.push(z[c])
+       dict[z[c][0]]='false'
+       p=0
+       print 'children',z[c]
+    l=[]
+    print "Goal",state
+    print "TY:",ty
+    s=ty
+    from game import Directions
+    sa = Directions.SOUTH
+    w = Directions.WEST
+    n = Directions.NORTH
+    e = Directions.EAST
+    if(problem.isGoalState(state)):
+     print "reached goal:,"
+     while(s):
+      q=s.pop()
+      print q
+      if(q[1]=='South'):
+        l.append(sa)
+      elif(q[1]=='West'):
+        l.append(w)
+      elif(q[1]=='North'):
+        l.append(n)
+      else:
+        l.append(e)
+    print l
+    l.reverse()
+    """
+    print 'function ending'
+
+    return path.list
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
