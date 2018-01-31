@@ -205,90 +205,36 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
 
-    from util import Queue
-    queue = Queue()
+    s = Queue()
+    state = problem.getStartState()
 
-    from state import state
+    dict = {}
+    parent = {}
+    temp = []
+    dict[state] = 'false'
 
-    initial_state = state()
+    while (not (problem.isGoalState(state))):
 
-    path = []
-    visited = set()
-    visitedSet = []
+        z = problem.getSuccessors(state)
+        for y in z:
+            if (not (y[0] in dict)):
+                dict[y[0]] = 'false'
+                s.push(y)
+                if (temp):
+                    parent[y] = temp
+        temp = s.pop()
+        state = temp[0]
 
-    print "Start:", problem.getStartState()
-    initial_state.mystate = problem.getStartState()
-    # current_state.parent initially (-1,-1)
-    print "Is the start a goal?", problem.isGoalState(initial_state.mystate)
 
-    visited.add(initial_state.mystate)
-    visitedSet.append(initial_state)
-    queue.push(initial_state)
+    path = Stack()
+    path.push(temp[1])
+    while (temp in parent):
+        path.push(parent[temp][1])
+        temp = parent[temp]
 
-    if (problem.isGoalState(initial_state.mystate)):
-        return
-    else:
-        for successor_node in (problem.getSuccessors(initial_state.mystate)):
-
-            if (successor_node[0] not in visited):
-                child_state = state()
-                child_state.mystate = successor_node[0]
-                child_state.parent = initial_state.mystate
-                child_state.action = successor_node[1]
-                queue.push(child_state)
-                visited.add(successor_node[0])
-                visitedSet.append(child_state)
-
-        current_state = queue.pop()
-
-        while (not (queue.isEmpty())):
-
-            next_state = queue.pop()
-
-            # print t
-
-            # print "Is the start a goal?", problem.isGoalState(current_state[0])
-            # print "Start's successors:", problem.getSuccessors(problem.getStartState())
-
-            if (problem.isGoalState(next_state.mystate)):
-                from game import Directions
-                s = Directions.SOUTH
-                w = Directions.WEST
-                n = Directions.NORTH
-                e = Directions.EAST
-                dir = []
-                path = reachfrom(initial_state , next_state , *visitedSet )
-                for p in path:
-                    print p
-                    if (p == 'e'):
-                        dir.append(e)
-                    elif (p == 'n'):
-                        dir.append(n)
-                    elif (p == 's'):
-                        dir.append(s)
-                    elif (p == 'w'):
-                        dir.append(w)
-
-                return dir
-            else:
-
-                # print current_state.mystate
-                for successor_node in (problem.getSuccessors(next_state.mystate)):
-
-                    if (successor_node[0] not in visited):
-                        child_state = state()
-                        child_state.mystate = successor_node[0]
-                        child_state.parent = next_state.mystate
-                        child_state.action = successor_node[1]
-                        queue.push(child_state)
-                        visited.add(successor_node[0])
-                        visitedSet.append(child_state)
-
-            current_state = next_state
-
-        if (queue.isEmpty()):
-            print "no path exist"
-
+    #print path.list
+    path.list.reverse()
+    return path.list
     # util.raiseNotDefined()
 
 
@@ -300,7 +246,7 @@ def uniformCostSearch(problem):
     queue=PriorityQueue()
     parent={}
     temp=state
-    print 'state',state
+    #print 'state',state
     while(not(problem.isGoalState(state))):
         successors=problem.getSuccessors(state)
         for a in successors:
@@ -309,6 +255,7 @@ def uniformCostSearch(problem):
                 queue.push((a,c),c)
                 parent[a[0]]=temp
         temp1=queue.pop()
+        print temp1
         temp=temp1[0]
         currentcost=temp1[1]+1
         state=temp[0]
@@ -316,8 +263,8 @@ def uniformCostSearch(problem):
     while((parent.has_key(temp[0]))):
         path.append(temp[1])
         temp=parent[temp[0]]
-        print 'temp',temp
-    print 'path',path
+        #print 'temp',temp
+    #print 'path',path
     path.reverse()
     return path
 
