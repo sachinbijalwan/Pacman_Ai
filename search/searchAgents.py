@@ -41,6 +41,8 @@ import util
 import time
 import search
 
+from pacman import GameState
+
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
 
@@ -294,15 +296,26 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        initial = (self.startingPosition, ())
+        return initial
+
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        goal =0
+        for c in self.corners:
+            if(c not in state[1]):
+                goal =1
+                break
+
+        if goal == 0:
+            return True
+        else:
+            return False
+
+
 
     def getSuccessors(self, state):
         """
@@ -316,17 +329,18 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
-        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+        for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x, y = state[0]
+            childcorner = list(state[1])
+            dx, dy = Actions.directionToVector(direction)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                if(((nextx,nexty) in self.corners) and ((nextx,nexty) not in childcorner) ):
+                    (childcorner).append((nextx,nexty))
 
-            "*** YOUR CODE HERE ***"
+                successors.append(    (  (  (nextx, nexty) , tuple(childcorner)  ), direction, 1)     )
 
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         return successors
 
     def getCostOfActions(self, actions):
@@ -356,11 +370,23 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    if (problem.isGoalState(state)):
+        return 0
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    position = state[0]
+    corners_done = state[1]
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    max = 0
+
+    for c in corners :
+        if (c not in corners_done):
+            h = abs(position[0] - c[0]) + abs(position[1] - c[1])
+            if(h > max):
+                max = h
+
+    return max
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -452,15 +478,26 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    position , foodGrid = state
+    max = 0
+
+
+    for food in foodGrid.asList() :
+        h = mazeDistance(position , food , problem.startingGameState )
+        if(h > max):
+            max = h
+
+    return max
+
+
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
     def registerInitialState(self, state):
         self.actions = []
         currentState = state
+
         while(currentState.getFood().count() > 0):
             nextPathSegment = self.findPathToClosestDot(currentState) # The missing piece
             self.actions += nextPathSegment
@@ -474,6 +511,8 @@ class ClosestDotSearchAgent(SearchAgent):
         print 'Path found with cost %d.' % len(self.actions)
 
     def findPathToClosestDot(self, gameState):
+        from util import Stack
+        from util import Queue
         """
         Returns a path (a list of actions) to the closest dot, starting from
         gameState.
@@ -484,8 +523,37 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        s = Queue()
+        state = startPosition
+
+        dict = {}
+        parent = {}
+        temp = []
+        dict[state] = 'false'
+
+        while (not (problem.isGoalState(state))):
+
+            z = problem.getSuccessors(state)
+            for y in z:
+                if (not (y[0] in dict)):
+                    dict[y[0]] = 'false'
+                    s.push(y)
+                    if (temp):
+                        parent[y] = temp
+            temp = s.pop()
+            state = temp[0]
+
+        path = Stack()
+        path.push(temp[1])
+        while (temp in parent):
+            path.push(parent[temp][1])
+            temp = parent[temp]
+
+        # print path.list
+        path.list.reverse()
+        return path.list
+
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -519,6 +587,13 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
+
+
+
+        if(self.food[x][y] is True):
+            return True
+        else:
+            return False
 
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
