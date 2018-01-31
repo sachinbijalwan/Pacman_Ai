@@ -300,17 +300,21 @@ def uniformCostSearch(problem):
     queue=PriorityQueue()
     parent={}
     temp=state
-    print 'state',state
+     #print 'state',state
     while(not(problem.isGoalState(state))):
         successors=problem.getSuccessors(state)
         for a in successors:
             if(not(parent.has_key(a[0]))):
-                c=currentcost
-                queue.push((a,c),c)
+                c=currentcost+a[2]
+                queue.update((a,c),c)
                 parent[a[0]]=temp
+            # else:
+            #    c=currentcost+a[2]
+            #    queue.update((a,c),c)
+
         temp1=queue.pop()
         temp=temp1[0]
-        currentcost=temp1[1]+1
+        currentcost=temp1[1]
         state=temp[0]
     path=[]
     while((parent.has_key(temp[0]))):
